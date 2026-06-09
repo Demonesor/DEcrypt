@@ -41,5 +41,5 @@ func main() {
 	}
 	// Щоб вікно не закрилося відразу при Drag & Drop у Windows
 	fmt.Println("\n3 сек до виходу...")
-	time.Sleep(300000 * time.Second)
+	time.Sleep(3 * time.Second)
 }
