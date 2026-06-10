@@ -1,8 +1,8 @@
 package script
 
 import (
-	"DEcrypt/net"
 	"DEcrypt/tool"
+	"DEcrypt/tool/net"
 	"os"
 	"path/filepath"
 )
