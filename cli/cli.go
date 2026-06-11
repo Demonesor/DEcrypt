@@ -1,42 +1,54 @@
 package cli
 
 import (
+	"DEcrypt/config"
 	"flag"
+	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // Config зберігає параметри командного рядка
-type Config struct {
-	Input  string
-	Output string
-}
 
-func Cli() Config {
-	var cfg Config
+func Cli(c *config.Config) {
 
-	// Визначаємо базові прапорці
 	// -i: вхідний файл
 	// -o: вихідний файл або папка
-	flag.StringVar(&cfg.Input, "i", "", "Шлях до вхідного файлу")
-	flag.StringVar(&cfg.Output, "o", "", "Шлях до вихідного файлу/папки")
+	flag.StringVar(&c.Input, "i", "", "Шлях до вхідного файлу")
+	flag.StringVar(&c.Output, "o", "", "Шлях до вихідного файлу/папки")
 
 	// Парсимо аргументи
 	flag.Parse()
+	c.Output, _ = filepath.Abs(c.Input)
 
 	// Обробка Drag & Drop:
-	// Якщо прапорець -i не вказано, але є "вільні" аргументи (flag.Args),
 	// беремо перший з них як вхідний файл.
-	if cfg.Input == "" {
+	if c.Input == "" {
 		args := flag.Args()
 		if len(args) > 0 {
-			cfg.Input = args[0]
+			c.Input = args[0]
 		} else if len(os.Args) > 1 && os.Args[1][0] != '-' {
 			// Якщо прапорців взагалі немає, але є аргумент
-			cfg.Input = os.Args[1]
-		} else {
-			return Config{"", ""}
+			c.Input = os.Args[1]
 		}
 	}
 
-	return cfg
+	if c.Input == "" {
+		fmt.Println("Помилка: не вказано вхідний файл.")
+		fmt.Println("Використання: -i <файл> [-o <вихід>] або просто перетягніть файл на програму.")
+		return
+	}
+
+	if c.Output != "" {
+		fmt.Printf("Вихідний шлях: %s\n", c.Output)
+	} else {
+		fmt.Println("Вихідний шлях не вказано (буде використано значення за замовчуванням).", c.Output)
+	}
+
+	// провірка формата
+	if filepath.Ext(c.Input) != ".py" {
+		println("недопустимий формат дайте файл .py")
+
+	}
+
 }
