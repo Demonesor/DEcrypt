@@ -19,6 +19,8 @@ func Start(c *config.Config) {
 	tool.Log("start stage2")
 	st2.Start(c)
 
+	//todo продовжити тут
+
 	runnerPath := runner(c.Temp)
 	// 3. Копіюємо python.zip з pdata прямо в c.Temp, щоб embed його побачив поруч із runner_main.go
 
