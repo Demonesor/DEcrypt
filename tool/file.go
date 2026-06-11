@@ -9,24 +9,26 @@ import (
 )
 
 func Tempdir(c *config.Config) {
-	c.TempDir = os.TempDir()
+	//todo зробити обробку помилок
+
+	c.Temp.BaseDir = os.TempDir()
+	Log(c.Temp.BaseDir)
 
 	// 2. Рахуємо хеш файлу
-	hash, err := getFileHash(c.Input)
-	if err != nil {
-		fmt.Printf("Помилка при читанні файлу: %v\n", err)
-		return
-	}
+	c.Build.Hash, _ = getFileHash(c.Paths.AbsInput)
+	Log(c.Build.Hash)
 
 	// 3. Формуємо ім'я папки
-	folderName := filepath.Base(c.Input) + hash
+	c.Temp.WorkDir = filepath.Base(c.Paths.AbsInput) + c.Build.Hash
+	Log(c.Temp.WorkDir)
 
 	// 4. Склеюємо ПОВНИЙ абсолютний шлях до нашої робочої папки всередині Temp
-	// Результат: C:\Users\...\AppData\Local\Temp\test.py901b841d...
-	c.Temp = filepath.Join(c.TempDir, folderName)
+
+	c.Temp.WorkDir = filepath.Join(c.Temp.BaseDir, c.Temp.WorkDir)
+	Log(c.Temp.WorkDir)
 
 	// 5. Створюємо цю папку (MkdirAll не панікує, якщо папка вже існує)
-	err = os.MkdirAll(c.Temp, 0755)
+	err := os.MkdirAll(c.Temp.WorkDir, 0755)
 	if err != nil {
 		fmt.Printf("Помилка створення папки в Temp: %v\n", err)
 		return

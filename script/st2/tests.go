@@ -1,4 +1,4 @@
-package script
+package st2
 
 import (
 	"DEcrypt/tool"

@@ -2,61 +2,22 @@ package script
 
 import (
 	"DEcrypt/config"
+	"DEcrypt/script/st1"
+	"DEcrypt/script/st2"
 	"DEcrypt/tool"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 )
 
-func Pac(c *config.Config) {
+func Start(c *config.Config) {
 
-	c.Exepath, c.Err = os.Executable()
-	if c.Err != nil {
-		fmt.Printf("Не вдалося отримати шлях бінарника: %v\n", c.Err)
-		return
-	}
-	c.Exedir = filepath.Dir(c.Exepath) // Це папка, де лежить наш DEcrypt.exe
-
-	// 2. Створюємо папку для завантажень (кешу) ПОРУЧ з нашим бінарником
-	c.Datadir = filepath.Join(c.Exedir, "pdata")
-	c.Err = os.MkdirAll(c.Datadir, 0755) // Створить папочку pdata, якщо її немає
-
-	// 3. Отримуємо шлях до тимчасової робочої папки (вона в системному Temp)
-	tool.Tempdir(c)
-
-	// Копіюємо твій test.py в тимчасову папку
-	targetPyFile := filepath.Join(c.Temp, filepath.Base(c.Input))
-	tool.CopyFile(c.Input, targetPyFile)
-
-	// 4. Завантажуємо python.zip в pdata (якщо його там немає)
-	tool.Log("Downloading python...")
-	zipPath := pythonD(c.Datadir) // Передаємо правильну папку кешу
-
-	// Розпаковуємо Python ТИМЧАСОВО в робочу папку для тестів
-	tempPythonDir := filepath.Join(c.Temp, "python")
-	tool.Unzip(zipPath, tempPythonDir)
-
-	// 5. Завантажуємо go.zip в pdata (якщо його там немає)
-	tool.Log("Downloading go...")
-	goPath := goD(c.Datadir)
-
-	// Розпаковуємо TinyGo тимчасово в робочу папку
-	tempTinygoDir := filepath.Join(c.Temp)
-	tool.Unzip(goPath, tempTinygoDir)
-
-	// 6. Запуск тестів
-	tool.Log("Running tests...")
-
-	// Шлях до тимчасового python.exe, який ми щойно розпакували в Temp
-	interpreter := filepath.Join(tempPythonDir, "python.exe")
-
-	// Запускаємо тест-ран
-	TestRun(targetPyFile, interpreter)
-
-	// ... Твій успішний TestRun пройшов тут ...
-
-	tool.Log("Тести успішні! Починаю генерацію фінального бінарника...")
+	// STEP 1 - преднастройка шукаємо знаходженя бінарника і создаєм папку кеша для рантайму і скачуєм його
+	tool.Log("start stage1")
+	st1.Start(c)
+	// STEP 2 - копіюємо бінарники в времену папку
+	tool.Log("start stage2")
+	st2.Start(c)
 
 	runnerPath := runner(c.Temp)
 	// 3. Копіюємо python.zip з pdata прямо в c.Temp, щоб embed його побачив поруч із runner_main.go
@@ -78,10 +39,10 @@ func Pac(c *config.Config) {
 	c.FinalExePath = filepath.Join(c.Output, c.FinalExename)
 
 	// Викликаємо встановлений у temp розпакований Go
-	goExe := filepath.Join(c.Temp, "go", "bin", "go.exe")
+	c.PathGo = filepath.Join(c.Temp, "go", "bin", "go.exe")
 
 	// Команда збірки: go build -ldflags="-s -w" -o <вихідний_exe> <шлях_до_runner_main.go>
-	cmdBuild := exec.Command(goExe, "build", "-ldflags=-s -w", "-o", c.FinalExePath, runnerPath)
+	cmdBuild := exec.Command(c.PathGo, "build", "-ldflags=-s -w", "-o", c.FinalExePath, runnerPath)
 	cmdBuild.Dir = c.Temp // Збираємо прямо в temp папці, де лежить наш runner_main.go та вшиті файли
 
 	cmdBuild.Stdout = os.Stdout

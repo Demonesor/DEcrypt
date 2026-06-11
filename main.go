@@ -15,15 +15,16 @@ func main() {
 	c := config.New()
 	cli.Cli(c)
 
-	tool.Log("Вхідний файл: %s\n", c.Input)
+	tool.Log("Вхідний файл: %s\n", c.Paths.AbsInput)
 
-	tool.Log("out: %s\n", c.Output)
+	tool.Log("out: %s\n", c.Paths.AbsOutput)
 
-	defer script.Clear(c)
+	//defer script.Clear(c)
 
-	script.Pac(c)
+	script.Start(c)
 
-	script.Clear(c)
+	//script.Clear(c)
+
 	// Щоб вікно не закрилося відразу при Drag & Drop у Windows
 	fmt.Println("\n3 сек до виходу...")
 	time.Sleep(3 * time.Second)
