@@ -51,6 +51,7 @@ func Cli(c *config.Config) {
 	if c.Paths.Output == "" {
 		// Якщо вихідна папка не вказана, зберігаємо екзешник у тій самій папці, де лежить скрипт
 		c.Paths.Output = filepath.Dir(c.Paths.AbsInput)
+
 		fmt.Println("⚠️ Вихідний шлях не вказано. Файл буде збережено поруч із скриптом:", c.Paths.Output)
 	} else {
 		// Якщо вказав, отримуємо абсолютний шлях

@@ -1,13 +1,14 @@
-package script
+package st3
 
 import (
+	"DEcrypt/config"
 	"DEcrypt/tool"
 	"os"
 	"path/filepath"
 )
 
-func runner(tempdir string) string {
-	runnerCode := `package main
+func runner(c *config.Config) {
+	c.Build.Runner = `package main
 
 import (
     "archive/zip"
@@ -102,11 +103,11 @@ func main() {
 }
 `
 	// 2. Записуємо runner_main.go в нашу тимчасову папку збірки
-	runnerPath := filepath.Join(tempdir, "runner_main.go")
-	err := os.WriteFile(runnerPath, []byte(runnerCode), 0644)
+	c.Build.RunnerPath = filepath.Join(c.Temp.WorkDir, "runner_main.go")
+	err := os.WriteFile(c.Build.RunnerPath, []byte(c.Build.Runner), 0644)
 	if err != nil {
 		tool.Log("Помилка запису runner_main.go: " + err.Error())
 
 	}
-	return runnerPath
+	return
 }

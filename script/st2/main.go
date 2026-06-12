@@ -3,6 +3,7 @@ package st2
 import (
 	"DEcrypt/config"
 	"DEcrypt/tool"
+	"os"
 	"path/filepath"
 )
 
@@ -22,9 +23,15 @@ func Start(c *config.Config) {
 	tool.Log(c.Deps.PyTempDir)
 
 	// Розпаковуємо Go тимчасово в робочу папку
-	c.Deps.GoTempDir = filepath.Join(c.Temp.WorkDir)
-	tool.Unzip(c.Deps.GoZip, c.Deps.GoTempDir)
-	tool.Log(c.Deps.GoTempDir)
+	g := filepath.Join(c.Paths.DataDir, "go", "bin", "go.exe")
+	if _, err := os.Stat(g); err == nil {
+		println("found go.exe cont")
+	} else {
+
+		c.Deps.GoTempDir = filepath.Join(c.Paths.DataDir)
+		tool.Unzip(c.Deps.GoZip, c.Deps.GoTempDir)
+		tool.Log(c.Deps.GoTempDir)
+	}
 
 	// 6. Запуск тестів
 	tool.Log("Running tests...")

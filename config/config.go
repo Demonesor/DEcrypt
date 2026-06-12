@@ -35,6 +35,9 @@ type BuildConfig struct {
 	FinalExePath string // Повний шлях для збереження готового бінарника
 	LdFlags      string // Команди збірки (напр. "-s -w" для зменшення розміру)
 	Hash         string // хеш ісходного файла
+	Runner       string // код для білда ранерв
+	RunnerPath   string //шлях до файла ранера
+	GOexe        string //шлях до exe go
 }
 
 // FlagsConfig тримає налаштування поведінки утиліти
@@ -62,7 +65,7 @@ func New() *Config {
 		},
 		Flags: FlagsConfig{
 			Verbose: true, // Вмикаємо логи за замовчуванням
-			RunTest: true, // робимо тести  зо замовчиванням
+			RunTest: true, // робимо тести за замовчиванням
 		},
 	}
 }
